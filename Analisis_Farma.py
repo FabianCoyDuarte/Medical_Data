@@ -3,8 +3,6 @@ import numpy as np
 from datetime import datetime, timedelta
 import locale
 locale.setlocale(locale.LC_ALL, ("es_ES", "UTF-8"))
-import spacy
-
 # import matplotlib.pyplot as plt
 # import streamlit as st
 # import ploty.express as px
@@ -173,7 +171,7 @@ def uniform_regions(df, Nombre_Columna_con_Regiones):
          elif df[Nombre_Columna_con_Regiones][reg] == 'Tolima - Huila':
              uniform_regions.append('Tolima - Huila')
          else:
-             uniform_regions.append(rotation_data['Regional'][reg])
+             uniform_regions.append(df['Regional'][reg])
     df['Regional Correcta'] = uniform_regions
     return df
 
@@ -225,6 +223,11 @@ def EXTRAER_MES(df,columna_fecha,columna_precio):
 
 
     df['Mes Numerico'] = numeric_month
+    # corregir_precios = []
+    # for entero in df[columna_precio]:
+    #     corregir_precios.append(int(entero))
+
+    # df['Precio en Entero'] = corregir_precios
 
     if 'Mes' in columns:
         df['MONTH'] = date
@@ -324,6 +327,7 @@ month_inform_inventario.to_csv(r'C:\Users\fcoy\Documents\Personal Docs\Farma\Med
 ###########UNIFICAR DF CON EL PORTAFOLIO
 portafolio['EAN'] = portafolio['COD_EAN13']
 merge_df_inventario = pd.merge(general_df_inventrio, portafolio, on='EAN', how='left')
+merge_df_inventario.to_csv(r'C:\Users\fcoy\Documents\Personal Docs\Farma\Medical_Data\Data\Reporte_Merge_Inventario_Portafolio.csv')
 
 ############ PRODUCTOS QUE SE ENCUENTRAN EN EL LISTADO DE INVENTARIO PERO NO EN EL PORTAFOLIO
 not_portafolio_inventario = not_in_portafolio(portafolio, merge_df_inventario,'EAN','DESCRIPCION')
@@ -332,6 +336,10 @@ not_portafolio_inventario.to_csv(r'C:\Users\fcoy\Documents\Personal Docs\Farma\M
 #### DIFERENTES REPORTES DE INVENTARIO
 Regional_report_total_Inventario = general_df_inventrio.groupby(general_df_inventrio['Regional Correcta'])['COSTO TOTAL ARTICULO'].sum().reset_index()
 Regional_report_total_Inventario.to_csv(r'C:\Users\fcoy\Documents\Personal Docs\Farma\Medical_Data\Data\Reporte_Regional_Inventario.csv')
+
+############# REPORTE MES A MES DE CADA UNA DE LAS REGIONALES #######################################################################
+df_report_months_inventario = report_regional_months(merge_df_inventario,'Regional Correcta','Mes','Mes Numerico', 'COSTO TOTAL ARTICULO')
+df_report_months_inventario.to_csv(r'C:\Users\fcoy\Documents\Personal Docs\Farma\Medical_Data\Data\Reporte_Mes_Regionales_Inventario.csv')
 
 #-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
@@ -348,8 +356,8 @@ month_inform.to_csv(r"C:\Users\fcoy\Documents\Personal Docs\Farma\Medical_Data\D
 #### UNIFICAR ARCHIVO DE ROTACION CON PORTAFOLIO
 portafolio['Código de Barras'] = portafolio['COD_EAN13']
 merge_df_rotacion = pd.merge(general_df_rotation, portafolio, on='Código de Barras', how='left')
-# print(merge_df_rotacion.columns)
-# print(general_df_rotation.columns)
+merge_df_rotacion.to_csv(r'C:\Users\fcoy\Documents\Personal Docs\Farma\Medical_Data\Data\Reporte_Merge_Rotacion_Portafolio.csv')
+
 
 ## GUARDAR ARCHIVO PARA SABER QUE NO SE ENCUENTRA EN EL DF DE ROTACION
 not_portafolio_rotacion = not_in_portafolio(portafolio, general_df_rotation,'Código de Barras','Descripción Producto')
