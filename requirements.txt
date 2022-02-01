@@ -3,4 +3,5 @@ numpy
 openpyxl
 steamlit
 plotly
-python -m spacy download es_core_news_sm
+PyQt5
+# python -m spacy download es_core_news_sm
