@@ -181,7 +181,8 @@ def EXTRAER_MES(df,columna_fecha,columna_precio):
     Función que permite obtener el mes de una dataframe
     """
     columns = df.columns
-    date = []
+    date_month = []
+    date_year = []
     numeric_month = []
     s = df[columna_fecha]
     for i in range(len(s)):
@@ -191,52 +192,44 @@ def EXTRAER_MES(df,columna_fecha,columna_precio):
             # date.append(s[i])
             temp = str(s[i])
             x = datetime(year=int(temp[0:4]), month=int(temp[8:10]), day=1)
-            if int(x.strftime("%Y")) > 2021:
-                numeric_month.append(int(x.strftime("%m"))+12)
-                month = x.strftime("%B"+" "+"%Y")
-                date.append(month)
-            else:
-                numeric_month.append(int(x.strftime("%m")))
-                month = x.strftime("%B")
-                date.append(month)
+            date_year.append(int(x.strftime('%Y')))
+            numeric_month.append(int(x.strftime("%m")))
+            month = x.strftime("%B")
+            date_month.append(month)
         elif transform_date == 26:
             temp = str(s[i])
             x = datetime(year=int(temp[0:4]), month=int(temp[8:10]), day=1)
-            if int(x.strftime("%Y")) > 2021:
-                numeric_month.append(int(x.strftime("%m"))+12)
-                month = x.strftime("%B"+" "+"%Y")
-                date.append(month)
-            else:
-                numeric_month.append(int(x.strftime("%m")))
-                month = x.strftime("%B")
-                date.append(month)
-        elif transform_date == 'NO ASIGNADO':
-            date.append(s[i])
-            numeric_month.append(20)
-        else:
-            # date.append(s[i])
-            temp = str(s[i])
-            x = datetime(year=int(temp[0:4]), month=int(temp[4:6]), day=1)
+            date_year.append(int(x.strftime('%Y')))
             numeric_month.append(int(x.strftime("%m")))
             month = x.strftime("%B")
-            date.append(month)
+            date_month.append(month)
+        elif transform_date == 'NO ASIGNADO':
+            date_year.append('NO ASIGNADO')
+            date_month.append(s[i])
+            numeric_month.append('NO ASIGNADO')
+        else:
+            temp = str(s[i])
+            x = datetime(year=int(temp[0:4]), month=int(temp[4:6]), day=1)
+            date_year.append(int(x.strftime('%Y')))
+            numeric_month.append(int(x.strftime("%m")))
+            month = x.strftime("%B")
+            date_month.append(month)
 
 
     df['Mes Numerico'] = numeric_month
-    # corregir_precios = []
-    # for entero in df[columna_precio]:
-    #     corregir_precios.append(int(entero))
-
-    # df['Precio en Entero'] = corregir_precios
+    df['Año'] = date_year
 
     if 'Mes' in columns:
-        df['MONTH'] = date
-        x = df.groupby(['MONTH','Mes Numerico'])[columna_precio].sum().reset_index()
-        final = x.sort_values('Mes Numerico', ascending=True).reset_index(drop=True).drop(columns=['Mes Numerico'])
+        df['MONTH'] = date_month
+        x = df.groupby(['MONTH','Mes Numerico','Año'])[columna_precio].sum().reset_index()
+        final = x.sort_values(by=['Año','Mes Numerico'], ascending=True).reset_index(drop=True).drop(columns=['Mes Numerico'])
+        # final = x.sort_values('Mes Numerico', ascending=True).reset_index(drop=True).drop(columns=['Mes Numerico'])
     else:
-        df['Mes'] = date
-        x = df.groupby(['Mes','Mes Numerico'])[columna_precio].sum().reset_index()
-        final = x.sort_values('Mes Numerico', ascending=True).reset_index(drop=True).drop(columns=['Mes Numerico'])
+        df['Mes'] = date_month
+        x = df.groupby(['Mes','Mes Numerico','Año'])[columna_precio].sum().reset_index()
+        final = x.sort_values(by=['Año','Mes Numerico'], ascending=True).reset_index(drop=True).drop(columns=['Mes Numerico'])
+
+
     return final, df
 
 ###### FUNCION PARA OBTENER LA INFORMACION QUE NO SE ENCUENTRA EN EL PORTAFOLIO
