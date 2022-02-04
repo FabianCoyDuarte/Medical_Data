@@ -9,12 +9,12 @@ from random import randint
 import numpy as np
 
 
-def lineplot(df, x_Name, y_Name, title, Color=None):
-    fig = px.line(df, x=x_Name, y=y_Name, title=title, color=Color)
+def lineplot(df, x_Name, y_Name, title, Color=None, list_Color_sequence=None):
+    fig = px.line(df, x=x_Name, y=y_Name, title=title, color=Color, color_discrete_sequence = list_Color_sequence)
     return fig
 
-def barplot(df, x_Name, y_Name, title, Color=None):
-    fig = px.bar(df, x=x_Name, y=y_Name, title=title, color=Color)
+def barplot(df, x_Name, y_Name, title, Color=None, list_Color_sequence=None):
+    fig = px.bar(df, x=x_Name, y=y_Name, title=title, color=Color, color_discrete_sequence = list_Color_sequence)
     return fig   
 
 def histplot(df, x_Name, y_Name, title, Color=None,x_range=None):
@@ -65,13 +65,13 @@ if option == "Inventario":
 
     if df_display_df_reporte_total:
         st.dataframe(df_reporte_inventario)
-    st.write(barplot(df_reporte_inventario, 'Mes', 'COSTO TOTAL ARTICULO', 'Reporte del total de costo de los articulos mes a mes'))
+    st.write(barplot(df_reporte_inventario, 'Mes', 'COSTO TOTAL ARTICULO', 'Reporte del total de costo de los articulos mes a mes', list_Color_sequence=['#1f77b4']))
 
     df_display_df_reporte_total_regionales = st.checkbox("Informacion de Regionales General", value=False)
 
     if df_display_df_reporte_total_regionales:
         st.dataframe(df_reporte_inventario_regional_general)
-    st.write(barplot(df_reporte_inventario_regional_general, 'Regional Correcta', 'COSTO TOTAL ARTICULO', 'Reporte del comportamiento mes a mes por region'))
+    st.write(barplot(df_reporte_inventario_regional_general, 'Regional Correcta', 'COSTO TOTAL ARTICULO', 'Reporte del comportamiento mes a mes por region', list_Color_sequence=['#92341F']))
 
     df_display_df_regionales_inventario_mes = st.checkbox("Informacion mes a mes por Regionales detallado", value=False)
 
@@ -88,24 +88,24 @@ if option == "Inventario":
     """, unsafe_allow_html=True)
 
     top_10_costo = df_inventario_completo.groupby(['NOMPROD'])['COSTO TOTAL ARTICULO'].sum().reset_index()
-    top_10_costo = top_10_costo.sort_values(by=['COSTO TOTAL ARTICULO'], ascending=False).reset_index(drop=True)[0:11]
+    top_10_costo = top_10_costo.sort_values(by=['COSTO TOTAL ARTICULO'], ascending=False).reset_index(drop=True)
 
     top_10_costo_cb = st.checkbox("Informacion Top 10 Medicamentos por Costo", value=False)
 
     if top_10_costo_cb:
          st.dataframe(top_10_costo)
 
-    st.write(barplot(top_10_costo, 'NOMPROD', 'COSTO TOTAL ARTICULO', 'Reporte Top 10 medicamentos por Costo'))
+    st.write(barplot(top_10_costo[0:11], 'NOMPROD', 'COSTO TOTAL ARTICULO', 'Reporte Top 10 medicamentos por Costo', list_Color_sequence=['green']))
 
     top_10_cantidad = df_inventario_completo.groupby(['NOMPROD'])['CANTIDAD ARTICULO'].sum().reset_index()
-    top_10_cantidad = top_10_cantidad.sort_values(by=['CANTIDAD ARTICULO'], ascending=False).reset_index(drop=True)[0:11]
+    top_10_cantidad = top_10_cantidad.sort_values(by=['CANTIDAD ARTICULO'], ascending=False).reset_index(drop=True)
 
     top_10_cantidad_cb = st.checkbox("Informacion Top 10 Medicamentos por Cantidad", value=False)
 
     if top_10_cantidad_cb:
          st.dataframe(top_10_cantidad)
 
-    st.write(barplot(top_10_cantidad, 'NOMPROD', 'CANTIDAD ARTICULO', 'Reporte Top 10 medicamentos por Cantidad'))
+    st.write(barplot(top_10_cantidad[0:11], 'NOMPROD', 'CANTIDAD ARTICULO', 'Reporte Top 10 medicamentos por Cantidad', list_Color_sequence=['yellow']))
 
 ############################################################################################################################################################
 #########################-------------------------------REVISION POR REGIONALES Y FILTROS-------------------------------#########################
@@ -150,7 +150,7 @@ if option == "Inventario":
         df_filter_city_region = filter_region[filter_region['Ciudad'] == city_selected]
 
         top_10_costo_city = df_filter_city_region.groupby(['NOMPROD'])['COSTO TOTAL ARTICULO'].sum().reset_index()
-        top_10_costo_city = top_10_costo_city.sort_values(by=['COSTO TOTAL ARTICULO'], ascending=True).reset_index(drop=True)[0:11]
+        top_10_costo_city = top_10_costo_city.sort_values(by=['COSTO TOTAL ARTICULO'], ascending=True).reset_index(drop=True)
         
         city_info_shops =str(int(len(df_filter_city_region['ORGANIZACION'].unique())))
         
@@ -160,27 +160,27 @@ if option == "Inventario":
         font: bold 16px Arial;
         }}
         </style>
-        <p class="a">La regional de {str(city_selected)} tiene {city_info_shops} puntos </p>
+        <p class="a">La ciudad de {str(city_selected)} tiene {city_info_shops} puntos </p>
         """
         st.markdown(html_str_regional, unsafe_allow_html=True)
 
-        top_10_costo_cb_city = st.checkbox(f"Informacion Top 10 Medicamentos menos vendidos por menor Costo en ciudad de {city_selected}", value=False)
+        top_10_costo_cb_city = st.checkbox(f"Informacion Medicamentos menos vendidos por menor Costo en ciudad de {city_selected}", value=False)
 
         if top_10_costo_cb_city:
             st.dataframe(top_10_costo_city)
 
-        st.write(barplot(top_10_costo_city, 'NOMPROD', 'COSTO TOTAL ARTICULO', f'Reporte Top 10 medicamentos por menor Costo en ciudad de {city_selected}'))
+        st.write(barplot(top_10_costo_city[0:10], 'NOMPROD', 'COSTO TOTAL ARTICULO', f'Reporte Top 10 medicamentos por menor Costo en ciudad de {city_selected}', list_Color_sequence=['green']))
 
     #####   CANTIDAD POR REGIONALES  #####
         top_10_cantidad_city = df_filter_city_region.groupby(['NOMPROD'])['CANTIDAD ARTICULO'].sum().reset_index()
-        top_10_cantidad_city = top_10_cantidad_city.sort_values(by=['CANTIDAD ARTICULO'], ascending=True).reset_index(drop=True)[0:11]
+        top_10_cantidad_city = top_10_cantidad_city.sort_values(by=['CANTIDAD ARTICULO'], ascending=True).reset_index(drop=True)
 
         top_10_cantidad_cb_city = st.checkbox(f"Informacion Top 10 Medicamentos por menor cantidad en ciudad de {city_selected}", value=False)
 
         if top_10_cantidad_cb_city:
             st.dataframe(top_10_cantidad_city)
 
-        st.write(barplot(top_10_cantidad_city, 'NOMPROD', 'CANTIDAD ARTICULO', f'Reporte Top 10 medicamentos por menor Cantidad en ciudad de {city_selected}'))
+        st.write(barplot(top_10_cantidad_city[0:11], 'NOMPROD', 'CANTIDAD ARTICULO', f'Reporte Top 10 medicamentos por menor Cantidad en ciudad de {city_selected}', list_Color_sequence=['yellow']))
 
 
 ############################################################################################################################################################
@@ -193,7 +193,7 @@ if option == "Inventario":
         if top_10_cantidad_cb_city:
             st.dataframe(top_10_cantidad_shop)
 
-        st.write(barplot(top_10_cantidad_shop, 'ORGANIZACION', 'CANTIDAD ARTICULO', f'Reporte Top 10 medicamentos por menor Cantidad en los punto de venta de {city_selected}'))
+        st.write(barplot(top_10_cantidad_shop, 'ORGANIZACION', 'CANTIDAD ARTICULO', f'Reporte Top 10 medicamentos por menor Cantidad en los punto de venta de {city_selected}', list_Color_sequence=['#431684']))
 
 
         allow_info_shop = st.checkbox("Ver información por punto de venta detallada", value=False)
@@ -266,13 +266,13 @@ if option == "Inventario":
                             filtro_medicamento_mes.drop(['Mes Numerico'], axis=1, inplace=True)
                             st.dataframe(filtro_medicamento_mes)
 
-                        st.write(lineplot(filtro_medicamento_mes, 'Mes', 'COSTO TOTAL ARTICULO', f'Reporte Regionales del medicamento {Medicamento}'))
+                        st.write(lineplot(filtro_medicamento_mes, 'Mes', 'COSTO TOTAL ARTICULO', f'Reporte Regionales del medicamento {Medicamento}',list_Color_sequence=['green']))
 
-                    ###############################################################################################################################################################
-                        ###############################################################################################################################################################
-                        ########################################### GRAFICAS DE CANTIDAD ###################################################################################################
-                        ###############################################################################################################################################################
-                        ###############################################################################################################################################################
+###################################################################################################################################################################
+#######################################################################################################################################################################
+############################################################ GRAFICAS DE CANTIDAD ###################################################################################################
+################################################################################################################################################################
+###############################################################################################################################################################
                         
                         st.markdown ("""
                         <h1 style="text-align: left;">Cantidad</h1>
@@ -286,7 +286,7 @@ if option == "Inventario":
                             filtro_medicamento_mes_inv_cantidad.drop(['Mes Numerico'], axis=1, inplace=True)
                             st.dataframe(filtro_medicamento_mes_inv_cantidad)
 
-                        st.write(lineplot(filtro_medicamento_mes_inv_cantidad, 'Mes', 'CANTIDAD ARTICULO', f'Reporte Regionales del medicamento {Medicamento} por CANTIDAD'))
+                        st.write(lineplot(filtro_medicamento_mes_inv_cantidad, 'Mes', 'CANTIDAD ARTICULO', f'Reporte Regionales del medicamento {Medicamento} por CANTIDAD', list_Color_sequence=['yellow']))
 
 
 ##############################################################################################################################################################
@@ -305,13 +305,13 @@ if option == "Rotacion":
     if df_display_df:
         st.dataframe(df_reporte_rotacion)
 
-    st.write(barplot(df_reporte_rotacion, 'Mes', 'Costo Compra', 'Reporte del total de costo de los articulos mes a mes'))
+    st.write(barplot(df_reporte_rotacion, 'Mes', 'Costo Compra', 'Reporte del total de costo de los articulos mes a mes', list_Color_sequence=['#1f77b4']))
     
     df_display_df_reporte_total_regionales_rotacion = st.checkbox("Información de regionales por mes", value=False)
 
     if df_display_df_reporte_total_regionales_rotacion:
         st.dataframe(df_reporte_rotacion_regional_general)
-    st.write(barplot(df_reporte_rotacion_regional_general, 'Regional Correcta', 'Costo Compra', 'Reporte del comportamiento mes a mes por region'))
+    st.write(barplot(df_reporte_rotacion_regional_general, 'Regional Correcta', 'Costo Compra', 'Reporte del comportamiento mes a mes por region', list_Color_sequence=['#92341F']))
 
 
     df_display_df_regionales = st.checkbox("Informacion mes a mes por Regionales", value=False)
@@ -336,85 +336,193 @@ if option == "Rotacion":
     if top_10_costo_rot_cb:
          st.dataframe(top_10_costo_rot)
 
-    st.write(barplot(top_10_costo_rot, 'NOMPROD', 'Costo Compra', 'Reporte Top 10 medicamentos por Costo'))
+    st.write(barplot(top_10_costo_rot, 'NOMPROD', 'Costo Compra', 'Reporte Top 10 medicamentos por Costo', list_Color_sequence=['green']))
 
     top_10_cantidad_rot = df_rotacion_completo.groupby(['NOMPROD'])['Unidades vendidas'].sum().reset_index()
-    top_10_cantidad_rot = top_10_cantidad_rot.sort_values(by=['Unidades vendidas'], ascending=False).reset_index(drop=True)[0:11]
+    top_10_cantidad_rot = top_10_cantidad_rot.sort_values(by=['Unidades vendidas'], ascending=False).reset_index(drop=True)
 
     top_10_cantidad_cb_rot = st.checkbox("Informacion Top 10 Medicamentos por Cantidad", value=False)
 
     if top_10_cantidad_cb_rot:
          st.dataframe(top_10_cantidad_rot)
 
-    st.write(barplot(top_10_cantidad_rot, 'NOMPROD', 'Unidades vendidas', 'Reporte Top 10 medicamentos por Cantidad'))
+    st.write(barplot(top_10_cantidad_rot[0:11], 'NOMPROD', 'Unidades vendidas', 'Reporte Top 10 medicamentos por Cantidad',list_Color_sequence=['yellow']))
+
+############################################################################################################################################################
+#########################-------------------------------REVISION POR REGIONALES Y FILTROS-------------------------------#########################
+############################################################################################################################################################
+    st.markdown ("""
+    <h1 style="text-align: center;">Información discriminada por Regional</h1>
+    """, unsafe_allow_html=True)
+
+    regionales_rotacion= df_rotacion_completo.sort_values(by=['Regional Correcta'], ascending=True)
+    Regional_select_rotacion = st.selectbox("Seleccione una Regional", regionales_rotacion['Regional Correcta'].unique())
+
+    reg_select_rotacion = Regional_select_rotacion
+
+    numer_cityes_shops_by_region_rotacion = regionales_rotacion[regionales_rotacion['Regional Correcta'] == reg_select_rotacion]
+
+    regional_shops_rotacion =str(int(len(numer_cityes_shops_by_region_rotacion['Nombre Org Inventario'].unique())))
+    ciudades_total_rotacion =str(int(len(numer_cityes_shops_by_region_rotacion['Ciudad'].unique())))
 
 
+    html_str_regional_rotacion = f"""
+    <style>
+    p.a {{
+    font: bold 16px Arial;
+    }}
+    </style>
+    <p class="a">La regional {str(reg_select_rotacion)} tiene {regional_shops_rotacion} puntos en {ciudades_total_rotacion} ciudades</p>
+    """
+    st.markdown(html_str_regional_rotacion, unsafe_allow_html=True)
 
-###################################################################################################################################################
-#########################-------------------------------INFORMACION POR MEDICAMENTO ROTACION-------------------------------#########################
+############################################################################################################################################################
+#########################-------------------------------REVISION PINFORMACION POR CIUDADES-------------------------------#########################
 ############################################################################################################################################################
 
-    st.markdown ("""
-    <h1 style="text-align: center;">Información discriminada por medicamento</h1>
-    """, unsafe_allow_html=True)
-    names_rotacion = df_rotacion_completo.sort_values(by=['NOMPROD'], ascending=True)
+    allow_info_ciudad_rotacion = st.checkbox("Ver información por ciudad detallada", value=False)
+
+    if allow_info_ciudad_rotacion:
+
+        filter_region_rotacion = df_rotacion_completo[df_rotacion_completo['Regional Correcta'] == reg_select_rotacion]
+        cities_rotacion = filter_region_rotacion.sort_values(by=['Ciudad'], ascending=True)
+        cities_select_rotacion = st.selectbox("Seleccione una Ciudad", cities_rotacion['Ciudad'].unique())
+
+        city_selectedrotacion = cities_select_rotacion
+
+        df_filter_city_region_rotacion = filter_region_rotacion[filter_region_rotacion['Ciudad'] == city_selectedrotacion]
+
+        top_10_costo_city_rotacion = df_filter_city_region_rotacion.groupby(['NOMPROD'])['Costo Compra'].sum().reset_index()
+        top_10_costo_city_rotacion = top_10_costo_city_rotacion.sort_values(by=['Costo Compra'], ascending=True).reset_index(drop=True)
+        
+        city_info_shops_rotacion =str(int(len(df_filter_city_region_rotacion['Nombre Org Inventario'].unique())))
+        
+        html_str_reg_rotacion = f"""
+        <style>
+        p.a {{
+        font: bold 16px Arial;
+        }}
+        </style>
+        <p class="a">La ciudad de {str(city_selectedrotacion)} tiene {city_info_shops_rotacion} puntos </p>
+        """
+        st.markdown(html_str_reg_rotacion, unsafe_allow_html=True)
+
+        top_10_costo_cb_city_rotacion = st.checkbox(f"Informacion Top 10 Medicamentos menos vendidos por menor Costo en ciudad de {city_selectedrotacion}", value=False)
+
+        if top_10_costo_cb_city_rotacion:
+            st.dataframe(top_10_costo_city_rotacion)
+
+        st.write(barplot(top_10_costo_city_rotacion[0:11], 'NOMPROD', 'Costo Compra', f'Reporte Top 10 medicamentos por menor Costo en ciudad de {city_selectedrotacion}', list_Color_sequence=['green']))
+
+    #####   CANTIDAD POR REGIONALES  #####
+        top_10_cantidad_city_rotacion = df_filter_city_region_rotacion.groupby(['NOMPROD'])['Unidades vendidas'].sum().reset_index()
+        top_10_cantidad_city_rotacion = top_10_cantidad_city_rotacion.sort_values(by=['Unidades vendidas'], ascending=True).reset_index(drop=True)
+
+        top_10_cantidad_cb_city_rotacion = st.checkbox(f"Informacion Top 10 Medicamentos por menor cantidad en ciudad de {city_selectedrotacion}", value=False)
+
+        if top_10_cantidad_cb_city_rotacion:
+            st.dataframe(top_10_cantidad_city_rotacion)
+
+        st.write(barplot(top_10_cantidad_city_rotacion[0:11], 'NOMPROD', 'Unidades vendidas', f'Reporte Top 10 medicamentos por menor Cantidad en ciudad de {city_selectedrotacion}', list_Color_sequence=['yellow']))
+
+        top_10_cantidad_shop_rotacion = df_filter_city_region_rotacion.groupby(['Nombre Org Inventario'])['Unidades vendidas'].sum().reset_index()
+        top_10_cantidad_shop_rotacion = top_10_cantidad_shop_rotacion.sort_values(by=['Unidades vendidas'], ascending=True).reset_index(drop=True)
+
+        top_10_cantidad_cb_shop_rot = st.checkbox(f"Informacion Top 10 Puntos de venta por menor cantidad en ciudad de {city_selectedrotacion}", value=False)
+
+        if top_10_cantidad_cb_shop_rot:
+            st.dataframe(top_10_cantidad_shop_rotacion)
+
+        st.write(barplot(top_10_cantidad_shop_rotacion[0:11], 'Nombre Org Inventario', 'Unidades vendidas', f'Reporte Top 10 medicamentos por menor Cantidad en los punto de venta de {city_selectedrotacion}', list_Color_sequence=['#431684']))
+
+
+        allow_info_shop_rotacion = st.checkbox("Ver información por punto de venta detallada", value=False)
+
+        if allow_info_shop_rotacion:
+
+            shops_rotation = df_filter_city_region_rotacion.sort_values(by=['Nombre Org Inventario'], ascending=True)
+            shops_select_rotation = st.selectbox(f"Seleccione un punto de venta de la ciudad de {city_selectedrotacion}", shops_rotation['Nombre Org Inventario'].unique())
+
+            shop_selected_rotation = shops_select_rotation
+
+            df_filter_city_region_shop_rotation = df_filter_city_region_rotacion[df_filter_city_region_rotacion['Nombre Org Inventario'] == shop_selected_rotation]
+
+            shops_info_products_rotation =str(int(len(df_filter_city_region_rotacion['NOMPROD'].unique())))
+        
+            html_str_regional_rota = f"""
+            <style>
+            p.a {{
+            font: bold 16px Arial;
+            }}
+            </style>
+            <p class="a">La Ciudad de {city_selectedrotacion} en {str(shop_selected_rotation)} tiene {shops_info_products_rotation} productos </p>
+            """
+            st.markdown(html_str_regional_rota, unsafe_allow_html=True)
 
  
+###################################################################################################################################################
+#########################-------------------------------INFORMACION POR MEDICAMENTO INVENTARIO-------------------------------#########################
+############################################################################################################################################################
+            allow_info_product_rotacion = st.checkbox(f"Ver información por productos en el punto {shop_selected_rotation}", value=False)
 
-    Medicamento_rot = st.selectbox("Seleccione un Medicamento", names_rotacion['NOMPROD'].unique())
-    seleccionado_rot = Medicamento_rot
+            if allow_info_product_rotacion:
 
-    st.markdown ("""
-    <h1 style="text-align: left;">Costos</h1>
-    """, unsafe_allow_html=True)
 
-    if Medicamento_rot == seleccionado_rot:
-        regional_behaviour_rotacion = df_rotacion_completo.groupby(['NOMPROD','Regional Correcta', 'Mes','Mes Numerico'])['Costo Compra'].sum().reset_index()
-        filtro_medicamento_region_rot_cantidad = regional_behaviour_rotacion[regional_behaviour_rotacion['NOMPROD']== Medicamento_rot].groupby(['Regional Correcta'])['Costo Compra'].sum().reset_index()
-        filtro_medicamento_region_rot_cantidad = filtro_medicamento_region_rot_cantidad.sort_values(by=['Costo Compra'], ascending=False)
+                st.markdown ("""
+                <h1 style="text-align: center;">Información discriminada por medicamento</h1>
+                """, unsafe_allow_html=True)
 
-        filtro_medicamento_mes_rot = regional_behaviour_rotacion[regional_behaviour_rotacion['NOMPROD']== Medicamento_rot].groupby(['Mes','Mes Numerico'])['Costo Compra'].sum().reset_index()
-        filtro_medicamento_mes_rot = filtro_medicamento_mes_rot.sort_values(by=['Mes Numerico'], ascending=True).reset_index(drop=True)
+                names_rotacion = df_filter_city_region_shop_rotation.sort_values(by=['NOMPROD'], ascending=True)
+                Medicamento_rotacion = st.selectbox("Seleccione un Medicamento", names_rotacion['NOMPROD'].unique())
+                seleccionado_rotacion = Medicamento_rotacion
 
-        name_medicamento_region_rot = st.checkbox("Informacion del medicamento por Region", value=False)
+                if names_rotacion[names_rotacion['NOMPROD']== seleccionado_rotacion].shape[0] < 2:
 
-        if name_medicamento_region_rot:
-            st.dataframe(filtro_medicamento_region_rot_cantidad)
+                    html_str_producto_1regis_rot = f"""
+                    <style>
+                    p.a {{
+                    font: bold 16px Arial;
+                    }}
+                    </style>
+                    <p class="a">La Ciudad de {city_selectedrotacion} en {str(shop_selected_rotation)} tiene {shops_info_products_rotation} productos del medicamento{seleccionado} solo tiene un registro </p>
+                    """
+                    st.markdown(html_str_producto_1regis_rot, unsafe_allow_html=True)
 
-        st.write(barplot(filtro_medicamento_region_rot_cantidad, 'Regional Correcta', 'Costo Compra', f'Reporte Regionales del medicamento {Medicamento_rot} por COSTOS'))
+                else:
+                    st.markdown ("""
+                    <h1 style="text-align: left;">COSTO</h1>
+                    """, unsafe_allow_html=True)
 
-        name_medicamento_mes_rot = st.checkbox("Informacion del medicamento por mes", value=False)
-        if name_medicamento_mes_rot:
-            st.dataframe(filtro_medicamento_mes_rot)
 
-        st.write(lineplot(filtro_medicamento_mes_rot, 'Mes', 'Costo Compra', f'Reporte Regionales del medicamento {Medicamento_rot} por COSTOS'))
+                    if Medicamento_rotacion == seleccionado_rotacion:
 
-        ###############################################################################################################################################################
-        ###############################################################################################################################################################
-        ########################################### GRAFICAS DE CANTIDAD ###################################################################################################
-        ###############################################################################################################################################################
-        ###############################################################################################################################################################
+                        filtro_medicamento_mes_rotacion = df_filter_city_region_shop_rotation[df_filter_city_region_shop_rotation['NOMPROD']== Medicamento_rotacion].groupby(['Mes','Mes Numerico','Año'])['Costo Compra'].sum().reset_index()
+                        filtro_medicamento_mes_rotacion = filtro_medicamento_mes_rotacion.sort_values(by=['Año','Mes Numerico'], ascending=True).reset_index(drop=True)
 
-        st.markdown ("""
-        <h1 style="text-align: left;">Cantidad</h1>
-        """, unsafe_allow_html=True)
+                        name_medicamento_mes_rot = st.checkbox(f"Informacion del medicamento {seleccionado_rotacion} por mes-Costo", value=False)
+                        if name_medicamento_mes_rot:
+                            filtro_medicamento_mes_rotacion.drop(['Mes Numerico'], axis=1, inplace=True)
+                            st.dataframe(filtro_medicamento_mes_rotacion)
 
-        regional_behaviour_rotacion_cantidad = df_rotacion_completo.groupby(['NOMPROD','Regional Correcta', 'Mes','Mes Numerico'])['Unidades vendidas'].sum().reset_index()
-        filtro_medicamento_region_rot_cantidad = regional_behaviour_rotacion_cantidad[regional_behaviour_rotacion_cantidad['NOMPROD']== Medicamento_rot].groupby(['Regional Correcta'])['Unidades vendidas'].sum().reset_index()
-        filtro_medicamento_region_rot_cantidad = filtro_medicamento_region_rot_cantidad.sort_values(by=['Unidades vendidas'], ascending=False)
+                        st.write(lineplot(filtro_medicamento_mes_rotacion, 'Mes', 'Costo Compra', f'Reporte Regionales del medicamento {Medicamento_rotacion}',list_Color_sequence=['green']))
 
-        filtro_medicamento_mes_rot_cantidad = regional_behaviour_rotacion_cantidad[regional_behaviour_rotacion_cantidad['NOMPROD']== Medicamento_rot].groupby(['Mes','Mes Numerico'])['Unidades vendidas'].sum().reset_index()
-        filtro_medicamento_mes_rot_cantidad = filtro_medicamento_mes_rot_cantidad.sort_values(by=['Mes Numerico'], ascending=True).reset_index(drop=True)
+###################################################################################################################################################################
+#######################################################################################################################################################################
+############################################################ GRAFICAS DE CANTIDAD ###################################################################################################
+################################################################################################################################################################
+###############################################################################################################################################################
+                        
+                        st.markdown ("""
+                        <h1 style="text-align: left;">Cantidad</h1>
+                        """, unsafe_allow_html=True)
 
-        name_medicamento_region_rot_cantidad = st.checkbox("Informacion del medicamento por Region-Cantidad", value=False)
+                        filtro_medicamento_mes_rot_cantidad = df_filter_city_region_shop_rotation[df_filter_city_region_shop_rotation['NOMPROD']== Medicamento_rotacion].groupby(['Mes','Mes Numerico','Año'])['Unidades vendidas'].sum().reset_index()
+                        filtro_medicamento_mes_rot_cantidad = filtro_medicamento_mes_rot_cantidad.sort_values(by=['Año','Mes Numerico'], ascending=True).reset_index(drop=True)
 
-        if name_medicamento_region_rot:
-            st.dataframe(filtro_medicamento_region_rot_cantidad)
+                        name_medicamento_mes_rot_cantidad = st.checkbox(f"Informacion del medicamento {seleccionado_rotacion} por Mes-Cantidad", value=False)
+                        if name_medicamento_mes_rot_cantidad:
+                            filtro_medicamento_mes_rot_cantidad.drop(['Mes Numerico'], axis=1, inplace=True)
+                            st.dataframe(filtro_medicamento_mes_rot_cantidad)
 
-        st.write(barplot(filtro_medicamento_region_rot_cantidad, 'Regional Correcta', 'Unidades vendidas', f'Reporte Regionales del medicamento {Medicamento_rot} por CANTIDAD'))
+                        st.write(lineplot(filtro_medicamento_mes_rot_cantidad, 'Mes', 'Unidades vendidas', f'Reporte Regionales del medicamento {Medicamento_rotacion} por CANTIDAD', list_Color_sequence=['yellow']))
 
-        name_medicamento_mes_rot_cantidad = st.checkbox("Informacion del medicamento por Mes-Cantidad", value=False)
-        if name_medicamento_mes_rot:
-            st.dataframe(filtro_medicamento_mes_rot_cantidad)
-
-        st.write(lineplot(filtro_medicamento_mes_rot_cantidad, 'Mes', 'Unidades vendidas', f'Reporte Regionales del medicamento {Medicamento_rot} por CANTIDAD'))
